@@ -1,34 +1,27 @@
 let timer;
 let isRunning = false;
-let startTime = null; 
+let startTime = null;
 let elapsedTime = 0;
+let serverTimestamp = null;
 
 const display = document.getElementById('display');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 
-// Connect to the WebSocket server
-const ws = new WebSocket('wss://stopwatch-hjsi.onrender.com/');
-
-ws.onopen = () => {
-    console.log("WebSocket connection established.");
-};
+// WebSocket connection
+const ws = new WebSocket('wss://zeroserver-a38o.onrender.com//');
 
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
-    // Handle the startTime message from the server
-    if (data.startTime && data.startTime > 0) {
-        console.log("Received startTime:", data.startTime);
+    if (data.startTime) {
         startTime = data.startTime;
+        serverTimestamp = data.timestamp; // Store server's timestamp
         isRunning = true;
         runTimer();
-    } else {
-        console.error("Invalid or missing startTime:", data.startTime);
     }
 
-    // Handle reset
     if (data.reset) {
         clearInterval(timer);
         startTime = null;
@@ -38,24 +31,19 @@ ws.onmessage = (event) => {
     }
 };
 
-// Start the timer
 startBtn.addEventListener('click', () => {
     if (!isRunning) {
-        console.log("Sending start signal to server...");
         ws.send(JSON.stringify({ type: 'start' }));
     }
 });
 
-// Stop the timer
 stopBtn.addEventListener('click', () => {
     clearInterval(timer);
     isRunning = false;
     elapsedTime = Date.now() - startTime;
 });
 
-// Reset the timer
 resetBtn.addEventListener('click', () => {
-    console.log("Sending reset signal to server...");
     ws.send(JSON.stringify({ type: 'reset' }));
 });
 
@@ -63,7 +51,7 @@ function runTimer() {
     clearInterval(timer);
     timer = setInterval(() => {
         const now = Date.now();
-        const timePassed = elapsedTime + (now - startTime);
+        const timePassed = elapsedTime + (now - serverTimestamp); // Adjust time using server's timestamp
         const seconds = Math.floor(timePassed / 1000);
         const milliseconds = timePassed % 1000;
         display.textContent = formatTime(seconds, milliseconds);
