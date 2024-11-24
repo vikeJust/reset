@@ -8,7 +8,7 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 
-const socket = new WebSocket('ws://192.168.29.111:8080');
+const socket = new WebSocket('wss://192.168.29.111:8080/');
 
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
