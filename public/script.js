@@ -8,17 +8,27 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 
+// Connect to the WebSocket server
 const ws = new WebSocket('wss://reset-5.onrender.com/');
+
+ws.onopen = () => {
+    console.log("WebSocket connection established.");
+};
 
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
-    if (data.startTime) {
+    // Handle the startTime message from the server
+    if (data.startTime && data.startTime > 0) {
+        console.log("Received startTime:", data.startTime);
         startTime = data.startTime;
         isRunning = true;
         runTimer();
+    } else {
+        console.error("Invalid or missing startTime:", data.startTime);
     }
 
+    // Handle reset
     if (data.reset) {
         clearInterval(timer);
         startTime = null;
@@ -28,19 +38,24 @@ ws.onmessage = (event) => {
     }
 };
 
+// Start the timer
 startBtn.addEventListener('click', () => {
     if (!isRunning) {
+        console.log("Sending start signal to server...");
         ws.send(JSON.stringify({ type: 'start' }));
     }
 });
 
+// Stop the timer
 stopBtn.addEventListener('click', () => {
     clearInterval(timer);
     isRunning = false;
     elapsedTime = Date.now() - startTime;
 });
 
+// Reset the timer
 resetBtn.addEventListener('click', () => {
+    console.log("Sending reset signal to server...");
     ws.send(JSON.stringify({ type: 'reset' }));
 });
 
