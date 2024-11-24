@@ -3,6 +3,7 @@ let isRunning = false;
 let startTime = null;
 let elapsedTime = 0;
 let serverTimestamp = null;
+let clientLatency = 0; // Variable to store calculated latency
 
 const display = document.getElementById('display');
 const startBtn = document.getElementById('startBtn');
@@ -10,7 +11,7 @@ const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 
 // WebSocket connection
-const ws = new WebSocket('wss://zeroserver-a38o.onrender.com//');
+const ws = new WebSocket('wss://zeroserver-a38o.onrender.com/');
 
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -18,6 +19,13 @@ ws.onmessage = (event) => {
     if (data.startTime) {
         startTime = data.startTime;
         serverTimestamp = data.timestamp; // Store server's timestamp
+
+        // Calculate the latency (round-trip time) from sending the message to receiving it
+        clientLatency = Date.now() - startTime; // Time difference between sending the request and receiving the startTime
+
+        // Adjust startTime using the server timestamp and client latency
+        startTime = serverTimestamp - clientLatency;
+
         isRunning = true;
         runTimer();
     }
@@ -51,7 +59,7 @@ function runTimer() {
     clearInterval(timer);
     timer = setInterval(() => {
         const now = Date.now();
-        const timePassed = elapsedTime + (now - serverTimestamp); // Adjust time using server's timestamp
+        const timePassed = now - startTime; // Adjust the time using the adjusted startTime
         const seconds = Math.floor(timePassed / 1000);
         const milliseconds = timePassed % 1000;
         display.textContent = formatTime(seconds, milliseconds);
