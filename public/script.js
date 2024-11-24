@@ -8,9 +8,9 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 
-const socket = new WebSocket('wss://192.168.29.111:8080/');
+const ws = new WebSocket('wss://reset-5.onrender.com/');
 
-socket.onmessage = (event) => {
+ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
     if (data.startTime) {
@@ -30,7 +30,7 @@ socket.onmessage = (event) => {
 
 startBtn.addEventListener('click', () => {
     if (!isRunning) {
-        socket.send(JSON.stringify({ type: 'start' }));
+        ws.send(JSON.stringify({ type: 'start' }));
     }
 });
 
@@ -41,7 +41,7 @@ stopBtn.addEventListener('click', () => {
 });
 
 resetBtn.addEventListener('click', () => {
-    socket.send(JSON.stringify({ type: 'reset' }));
+    ws.send(JSON.stringify({ type: 'reset' }));
 });
 
 function runTimer() {

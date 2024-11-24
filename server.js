@@ -2,6 +2,7 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const WebSocket = require('ws');
+const port = process.env.PORT || 8080;
 
 const server = http.createServer((req, res) => {
     if (req.url === '/' || req.url === '/index.html') {
@@ -53,9 +54,9 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
-            
-            if (data.type === 'start') {
+            console.log('Received message:', data); // Add logging to see incoming messages
 
+            if (data.type === 'start') {
                 globalStartTime = Date.now();
                 console.log(`Timer started at ${globalStartTime}`);
 
@@ -65,7 +66,6 @@ wss.on('connection', (ws) => {
                     }
                 });
             } else if (data.type === 'reset') {
-
                 globalStartTime = null;
                 console.log('Timer reset');
 
@@ -84,6 +84,6 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => console.error(`Client error: ${error.message}`));
 });
 
-server.listen(process.env.PORT || 8080, () => {
-    console.log(`Server is listening on port ${process.env.PORT || 8080}`);
+server.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
 });
