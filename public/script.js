@@ -9,7 +9,7 @@ const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 
 // Connect to the WebSocket server
-const ws = new WebSocket('wss://reset-5.onrender.com/');
+const ws = new WebSocket('wss://stopwatch-hjsi.onrender.com/');
 
 ws.onopen = () => {
     console.log("WebSocket connection established.");
